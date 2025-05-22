@@ -9,6 +9,7 @@ REM 🧩 Compilar daemon
 pyinstaller ^
   --clean ^
   --noconfirm ^
+  --windowed ^
   --onefile ^
   --icon=icon.ico ^
   --add-data="bin/SoundVolumeView.exe;bin" ^
@@ -19,6 +20,7 @@ REM 🧩 Compilar configurador UI
 pyinstaller ^
   --clean ^
   --noconfirm ^
+  --windowed ^
   --onefile ^
   --icon=icon.ico ^
   --add-data="bin/SoundVolumeView.exe;bin" ^
@@ -38,13 +40,15 @@ goto wait2
 
 :continue
 
-REM 🚀 Compilar main con los EXE ya empaquetados
+REM 🚀 Compilar main con splash
 pyinstaller ^
   --clean ^
   --noconfirm ^
   --onefile ^
   --windowed ^
   --icon=icon.ico ^
+  --splash=splash.png ^
+  --add-data="splash.png;." ^
   --add-data="bin/SoundVolumeView.exe;bin" ^
   --add-data="bin/nircmd.exe;bin" ^
   --add-data="icon.ico;." ^

@@ -20,6 +20,20 @@ def _run_command(args):
         logging.error(f"💥 Error ejecutando SoundVolumeView: {e}")
         return -1, ""
 
+def is_muted(name: str) -> bool | None:
+    code, output = _run_command(["/GetMute", name])
+    logging.debug(f"📤 Output raw de mute '{name}': code={code} | output='{output}'")
+    if code != 0 or not output:
+        logging.warning(f"❓ Estado de mute indefinido para '{name}': {output}")
+        return None
+    if output == "1":
+        return True
+    elif output == "0":
+        return False
+    else:
+        logging.warning(f"⚠️ Salida inesperada para mute de '{name}': '{output}'")
+        return None
+
 def set_volume(name: str, volume_percent: int):
     volume = max(0, min(volume_percent, 100))
     if _volume_cache.get(name) == volume:
@@ -34,11 +48,15 @@ def set_volume(name: str, volume_percent: int):
         logging.warning(f"❌ No se pudo cambiar volumen de '{name}'")
 
 def get_volume(name: str) -> int | None:
-    code, _ = _run_command(["/GetPercent", name])
+    code, output = _run_command(["/GetPercent", name])
     if code != 0:
         logging.warning(f"❌ No se pudo obtener volumen de '{name}'")
         return None
-    return code // 10  # Devuelve el % real
+    try:
+        return int(output)
+    except ValueError:
+        logging.warning(f"⚠️ Salida inesperada para volumen: '{output}'")
+        return None
 
 def mute(name: str):
     if _mute_cache.get(name) == True:
@@ -56,5 +74,9 @@ def unmute(name: str):
 
 def toggle_mute(name: str):
     _run_command(["/Switch", name])
-    _mute_cache[name] = not _mute_cache.get(name, False)
-    logging.info(f"🔃 '{name}' mute cambiado a {_mute_cache[name]}")
+    state = is_muted(name)
+    if state is not None:
+        _mute_cache[name] = state
+        logging.info(f"🔃 '{name}' mute cambiado a {state}")
+    else:
+        logging.warning(f"⚠️ No se pudo verificar mute para '{name}'")

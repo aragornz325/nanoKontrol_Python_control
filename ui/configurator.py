@@ -1,5 +1,9 @@
+import os
+import subprocess
 import sys
 from pathlib import Path
+
+import psutil
 
 from core.enums.data import Fader, Knob, Button, Label, Transport, Action
 from core.utils.scann_devices import list_audio_devices
@@ -168,7 +172,25 @@ def render_controls(name, controls):
                     width=250,
                     tag=param_tag,
                 )
+def restart_daemon():
+    exe_name = "mcc_command_deck_v3.exe"
+    
+    # 🧨 Matar procesos existentes del daemon
+    for proc in psutil.process_iter(['pid', 'name']):
+        if proc.info['name'] == exe_name:
+            try:
+                proc.kill()
+                print(f"🔪 Proceso '{exe_name}' terminado (PID {proc.pid})")
+            except Exception as e:
+                print(f"⚠️ No se pudo terminar el proceso {proc.pid}: {e}")
 
+    # 🚀 Relanzar el daemon desde el mismo folder del EXE
+    exe_path = os.path.join(os.path.dirname(sys.executable), exe_name)
+    if os.path.exists(exe_path):
+        subprocess.Popen([exe_path])
+        print(f"🚀 Daemon relanzado desde: {exe_path}")
+    else:
+        print(f"❌ No se encontró el ejecutable: {exe_path}")
 
 def save_all_assignments():
     for control_id in combo_ids:
@@ -190,7 +212,7 @@ def save_all_assignments():
 
 def build_ui():
     with dpg.window(label="nanoKontrol Configurator", width=800, height=600):
-        dpg.add_text("🎛 Asignador de Controles nanoKONTROL2")
+        dpg.add_text("Asignador de Controles nanoKONTROL2")
         dpg.add_separator()
 
         dpg.add_text("🔴 No conectado", tag="led_status", color=(255, 0, 0))
@@ -209,8 +231,8 @@ def build_ui():
 
         dpg.add_separator()
         dpg.add_button(
-            label="💾 Guardar",
-            callback=lambda: save_all_assignments(),
+            label="Guardar y relanzar daemon",
+            callback=lambda: (save_all_assignments(), restart_daemon()),
             width=100,
             height=50,
         )
