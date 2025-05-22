@@ -98,6 +98,9 @@ def list_audio_devices():
     """
     temp_file = Path(tempfile.gettempdir()) / "audio_devices.csv"
 
+    # 🔎 DEBUG: Verificar si el path es correcto
+    print("🧪 SoundVolumeView path →", SOUNDVOL_PATH)
+    
     subprocess.run([str(SOUNDVOL_PATH), "/scomma", str(temp_file)], check=True)
 
     devices = []

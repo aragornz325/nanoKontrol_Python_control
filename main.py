@@ -1,3 +1,5 @@
+# -*- mode: python ; coding: utf-8 -*-
+
 import sys, subprocess, os
 from pystray import Icon, MenuItem, Menu
 from PIL import Image
@@ -33,6 +35,9 @@ def open_config_ui(icon, item):
     else:
         subprocess.Popen([sys.executable, resource_path("ui/configurator.py")])
 
+def restart_daemon():
+    stop_daemon()
+    start_daemon()
 
 def exit_app(icon, item):
     stop_daemon()
@@ -43,6 +48,8 @@ if __name__ == "__main__":
     start_daemon()
     image = Image.open(resource_path("icon.ico"))
     menu = Menu(
-        MenuItem("🛠 Configurar...", open_config_ui), MenuItem("❌ Salir", exit_app)
+        MenuItem("🛠 Configurar...", open_config_ui), MenuItem("❌ Salir", exit_app),
+        MenuItem("🔁 Reiniciar servicio", lambda icon, item: restart_daemon()),
+        MenuItem("❌ Salir", exit_app),
     )
     Icon("nanoKONTROL", image, "nanoKontrol", menu).run()

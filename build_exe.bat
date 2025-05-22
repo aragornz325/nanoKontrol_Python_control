@@ -7,13 +7,17 @@ del *.spec
 
 REM 🧩 Compilar daemon
 pyinstaller ^
+  --clean ^
   --noconfirm ^
   --onefile ^
   --icon=icon.ico ^
+  --add-data="bin/SoundVolumeView.exe;bin" ^
+  --add-data="bin/nircmd.exe;bin" ^
   mcc_command_deck_v3.py
 
 REM 🧩 Compilar configurador UI
 pyinstaller ^
+  --clean ^
   --noconfirm ^
   --onefile ^
   --icon=icon.ico ^
@@ -36,6 +40,7 @@ goto wait2
 
 REM 🚀 Compilar main con los EXE ya empaquetados
 pyinstaller ^
+  --clean ^
   --noconfirm ^
   --onefile ^
   --windowed ^
