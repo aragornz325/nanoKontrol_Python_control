@@ -22,8 +22,6 @@ def set_volume_by_assignment(control_id: str, value: float):
     else:
         print(f"⚠️ Tipo de asignación no soportado aún: {assignment['type']}")
 
-# actions/audio/volumen_control.py
-
 
 def set_device_volume_scaled(control_id: str, raw: int, assignment):
     print(f"🎚️ {control_id}: MIDI {raw} → {assignment['target']}")

@@ -17,6 +17,9 @@ class Action(Enum):
     PREV_TRACK = "prev_track"
     STOP = "stop"
     TOGGLE_DEVICE_MUTE = "toggle_device_mute"
+    LAUNCH_EMULATOR = "launch_emulator"
+    MAQUEE = "marquee"
+    DRUM = "drum"
 
 
 class Fader(Enum):

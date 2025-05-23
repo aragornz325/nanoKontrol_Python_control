@@ -2,6 +2,7 @@ import rtmidi
 import subprocess
 import logging
 import time
+from core.utils.marquee import play_audio_equalizer, launch_marquee_thread
 from actions.volumen_device_control import set_device_volume_scaled
 from audio.volumen_control import set_volume_for_app
 from audio.youtube_control_audio import set_volume_for_youtube_window
@@ -9,13 +10,14 @@ from config.assignments import KNOB_DEVICE_ASSIGNMENTS
 from controller_registry import register_action, register_cc_action, handle_midi_event
 from core.enums.data import Action, Transport, MultimediaActions
 from core.utils.app_control import toggle_app_and_led
+from core.utils.launch_emulator import toggle_android_emulator
 from core.utils.scann_devices import set_volume_for_device, toggle_mute_for_device
 from core.utils.youtube_control import toggle_youtube_window_and_led
 from db.assignments_db import get_all_assignments, init_db
 import os
 import keyboard
 
-from led.led_control import pulse_led
+from led.led_control import pulse_led, set_led
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - [Main] %(message)s")
@@ -27,7 +29,7 @@ def execute_action(action: str, params: str, value=None, control_id=None):
     except ValueError:
         logging.warning(f"⚠️ Acción no reconocida: {action}")
         return
-# ========= ACCIONES DE CONTROL DE APLICACIONES =================
+    # ========= ACCIONES DE CONTROL DE APLICACIONES =================
     if action_enum == Action.LAUNCH_APP:
         process_name = os.path.basename(params)
         toggle_app_and_led(
@@ -35,7 +37,33 @@ def execute_action(action: str, params: str, value=None, control_id=None):
             led_name=control_id,
             launch_command=params,
         )
-# ========== ACCIONES DE CONTROL =================
+
+    elif action_enum == Action.LAUNCH_EMULATOR:
+        if not params:
+            logging.warning(f"⚠️ No se especificó emulador para {control_id}")
+            return
+        try:
+            toggle_android_emulator(params, led_name=control_id)
+        except Exception as e:
+            logging.error(f"💥 Error al alternar emulador {params}: {e}")
+
+    # =========== ACCIONES DE MARQUEE & DRUM =================
+    elif action_enum == Action.MAQUEE:
+        if not params:
+            logging.warning(f"⚠️ No se especificó texto para marquee en {control_id}")
+            return
+        try:
+            launch_marquee_thread(params, set_led_fn=set_led)
+        except Exception as e:
+            logging.error(f"💥 Error al iniciar marquee: {e}")
+
+    elif action_enum == Action.DRUM:
+        try:
+            play_audio_equalizer("percu.wav", set_led_fn=set_led)
+        except Exception as e:
+            logging.error(f"💥 Error al iniciar marquee: {e}")
+
+    # ========== ACCIONES DE CONTROL =================
     elif action_enum == Action.YOUTUBE:
         toggle_youtube_window_and_led(led_name=control_id)
 
@@ -59,8 +87,8 @@ def execute_action(action: str, params: str, value=None, control_id=None):
             MultimediaActions.STOP.value,
             Transport.STOP.value,
         )
-        
-    # ============ ACCIONES DE VOLUMEN =================        
+
+    # ============ ACCIONES DE VOLUMEN =================
 
     elif action_enum == Action.TOGGLE_DEVICE_MUTE:
         if not params:
@@ -70,7 +98,6 @@ def execute_action(action: str, params: str, value=None, control_id=None):
             toggle_mute_for_device(params, led_name=control_id)
         except Exception as e:
             logging.error(f"💥 Error al alternar mute del dispositivo {params}: {e}")
-
 
     elif action_enum == Action.SET_VOLUME:
         try:
@@ -85,7 +112,6 @@ def execute_action(action: str, params: str, value=None, control_id=None):
             return
         try:
             volume_percent = int((int(value) / 127.0) * 100)
-            
 
             set_volume_for_device(params, volume_percent)
             logging.info(f"🎛️ {control_id} → {params} = {volume_percent}%")
@@ -139,23 +165,24 @@ def setup_actions():
     for control_id, action_name, params in assignments:
         if control_id.endswith("_fader") or control_id.endswith("_knob"):
             # CC (Continuous Control)
-            def cc_callback(value, a=action_name, p=params, c=control_id):
-                logging.info(f"🎚️ Ejecutando {a} con {p} ({value})")
-                execute_action(a, p, value=value, control_id=c)
-
-            register_cc_action(control_id, cc_callback)
-
+            register_cc_action(
+                control_id,
+                lambda value, a=action_name, p=params, c=control_id: execute_action(
+                    a, p, value=value, control_id=c
+                ),
+            )
         else:
             # NOTE (Botón)
-            def note_callback(a=action_name, p=params, c=control_id):
-                logging.info(f"🟢 Ejecutando {a} con {p}")
-                execute_action(a, p, control_id=c)
-
-            register_action(control_id, note_callback)
+            register_action(
+                control_id,
+                lambda a=action_name, p=params, c=control_id: execute_action(
+                    a, p, control_id=c
+                ),
+            )
 
 
 def main():
-    init_db() 
+    init_db()
     midi_in = rtmidi.MidiIn()
     available_ports = midi_in.get_ports()
 

@@ -172,12 +172,14 @@ def render_controls(name, controls):
                     width=250,
                     tag=param_tag,
                 )
+
+
 def restart_daemon():
     exe_name = "mcc_command_deck_v3.exe"
-    
+
     # 🧨 Matar procesos existentes del daemon
-    for proc in psutil.process_iter(['pid', 'name']):
-        if proc.info['name'] == exe_name:
+    for proc in psutil.process_iter(["pid", "name"]):
+        if proc.info["name"] == exe_name:
             try:
                 proc.kill()
                 print(f"🔪 Proceso '{exe_name}' terminado (PID {proc.pid})")
@@ -191,6 +193,7 @@ def restart_daemon():
         print(f"🚀 Daemon relanzado desde: {exe_path}")
     else:
         print(f"❌ No se encontró el ejecutable: {exe_path}")
+
 
 def save_all_assignments():
     for control_id in combo_ids:
@@ -218,9 +221,7 @@ def build_ui():
         dpg.add_text("🔴 No conectado", tag="led_status", color=(255, 0, 0))
         setup_led_checker()
 
-        with dpg.child_window(
-            autosize_x=True, autosize_y=False, height=450
-        ):  # <- Ajustá altura según tu caso
+        with dpg.child_window(autosize_x=True, autosize_y=False, height=450):
             with dpg.tab_bar():
                 with dpg.tab(label=Label.FADERS.value):
                     render_controls(Label.FADERS.value, FADERS)

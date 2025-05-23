@@ -1,3 +1,8 @@
+# este archivo completo ya no se usa
+# Este archivo contiene la configuración de asignaciones de dispositivos y controles
+# de las versiones v1 y v2 de la aplicación.
+# esta deprecado y no se usa en la version 3.0
+
 KNOB_DEVICE_ASSIGNMENTS = {
     "track8_knob": {  # Este sería el knob 8 en canal 0
         "type": "device",

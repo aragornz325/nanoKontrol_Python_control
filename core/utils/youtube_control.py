@@ -12,6 +12,13 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - [YT] %(message)s")
 
 
 def _get_youtube_window():
+    """
+    Busca una ventana visible de Chrome con "YouTube" en el título.
+
+    Devuelve:
+        Un objeto ventana que representa la primera ventana visible de Chrome con "YouTube" en el título,
+        o None si no se encuentra ninguna.
+    """
     for window in gw.getWindowsWithTitle("YouTube"):
         hwnd = window._hWnd
         if "Chrome" in window.title and win32gui.IsWindowVisible(hwnd):
@@ -20,6 +27,15 @@ def _get_youtube_window():
 
 
 def toggle_youtube_window_and_led(led_name="track1_rec"):
+    """
+    Alterna la visibilidad de una ventana de YouTube en Chrome y actualiza el estado de un LED especificado.
+    Si una ventana de YouTube está abierta, intenta cerrarla y apaga el LED indicado.
+    Si no se encuentra una ventana de YouTube, lanza una nueva ventana de Chrome con YouTube y enciende el LED después de verificar que la ventana está abierta.
+    Args:
+        led_name (str): Nombre del LED a actualizar. Por defecto es "track1_rec".
+    Excepciones:
+        Registra errores si no puede cerrar la ventana de YouTube o lanzar Chrome.
+    """
     yt_window = _get_youtube_window()
 
     if yt_window:
