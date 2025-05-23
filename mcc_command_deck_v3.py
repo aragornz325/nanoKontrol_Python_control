@@ -61,7 +61,7 @@ def execute_action(action: str, params: str, value=None, control_id=None):
         try:
             play_audio_equalizer("percu.wav", set_led_fn=set_led)
         except Exception as e:
-            logging.error(f"💥 Error al iniciar marquee: {e}")
+            logging.error(f"💥 Error al iniciar drum/equalizer: {e}")
 
     # ========== ACCIONES DE CONTROL =================
     elif action_enum == Action.YOUTUBE:
