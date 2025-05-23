@@ -23,8 +23,8 @@ Esta app te permite mapear faders, knobs y botones a funciones del sistema opera
 ## 📦 Instalación
 
 ```bash
-git clone https://github.com/tuusuario/nanokontrol2-midi-companion.git
-cd nanokontrol2-midi-companion
+git clone git@github.com:aragornz325/nanoKontrol_Python_control.git
+cd pythonKontrol
 pip install -r requirements.txt
 python main.py
 ```
