@@ -1,3 +1,7 @@
+# archivo deprecado
+# no se usa en la version 3
+
+
 from pathlib import Path
 import json
 

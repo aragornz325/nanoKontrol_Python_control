@@ -13,14 +13,35 @@ _last_device_update = {}
 _last_volume_sent = {}
 
 
-def set_volume_for_device(device_name: str, volume_percent: int):
+def set_volume_for_device(
+    device_name: str,
+    volume_percent: int,
+):
+    """
+    Establece el volumen para un dispositivo de audio especificado a un porcentaje dado.
+    Esta función actualiza el volumen del dispositivo usando una herramienta externa,
+    aplicando un intervalo mínimo de 100ms entre actualizaciones e ignorando cambios menores al 2%.
+    Registra la operación y maneja los errores de forma controlada.
+    Args:
+        device_name (str): Nombre del dispositivo de audio a ajustar.
+        volume_percent (int): Nivel de volumen deseado como porcentaje (0-100).
+    Raises:
+        subprocess.CalledProcessError: Si falla el comando externo de ajuste de volumen.
+        Exception: Para cualquier otro error inesperado durante la operación.
+    """
     global _last_device_update, _last_volume_sent
 
     now = time.time()
     volume = max(0, min(volume_percent, 100))
 
-    last_time = _last_device_update.get(device_name, 0)
-    last_volume = _last_volume_sent.get(device_name, None)
+    last_time = _last_device_update.get(
+        device_name,
+        0,
+    )
+    last_volume = _last_volume_sent.get(
+        device_name,
+        None,
+    )
 
     # No actualizar si no pasaron 100ms
     if now - last_time < 0.1:
@@ -100,7 +121,7 @@ def list_audio_devices():
 
     # 🔎 DEBUG: Verificar si el path es correcto
     print("🧪 SoundVolumeView path →", SOUNDVOL_PATH)
-    
+
     subprocess.run([str(SOUNDVOL_PATH), "/scomma", str(temp_file)], check=True)
 
     devices = []

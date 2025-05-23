@@ -50,6 +50,7 @@ pyinstaller ^
   --splash=splash.png ^
   --add-data="splash.png;." ^
   --add-data="bin/SoundVolumeView.exe;bin" ^
+  --add-data="core/utils/percu.wav;core/utils" ^
   --add-data="bin/nircmd.exe;bin" ^
   --add-data="icon.ico;." ^
   --add-data="dist\\mcc_command_deck_v3.exe;." ^
